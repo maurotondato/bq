@@ -151,15 +151,6 @@
     });
   }
 
-  /* ---------- hero line-art draw ---------- */
-  function initHeroLineArt() {
-    var el = document.querySelector(".hero-line-art");
-    if (!el) return;
-    requestAnimationFrame(function () {
-      setTimeout(function () { el.classList.add("is-drawn"); }, 300);
-    });
-  }
-
   /* ---------- count up ---------- */
   function initCountUp() {
     var els = document.querySelectorAll("[data-count-to]");
@@ -217,7 +208,6 @@
     safe(initSmoothScroll, "initSmoothScroll");
     safe(initCursor, "initCursor");
     safe(initTilt, "initTilt");
-    safe(initHeroLineArt, "initHeroLineArt");
     safe(initCountUp, "initCountUp");
   }
 
