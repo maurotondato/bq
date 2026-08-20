@@ -6,14 +6,14 @@
 <title>Bernardo Quaranta — Kinesiólogo · Osteópata Deportivo</title>
 <meta name="description" content="Kinesiología y Osteopatía deportiva en Recoleta y Pilar. Lic. Bernardo Quaranta, MN 20395 — rehabilitación, evaluación funcional y un enfoque integral del cuerpo para quienes viven el deporte." />
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%230a0a0a'/%3E%3Ctext x='50' y='63' text-anchor='middle' font-size='38' font-family='Georgia,serif' letter-spacing='-1' fill='none' stroke='%23fbfaf8' stroke-width='1.6'%3EBQ%3C/text%3E%3C/svg%3E" />
+<link rel="icon" type="image/webp" href="assets/img/logo.webp?v=20260820c" />
 <meta name="theme-color" content="#fbfaf8" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-<link rel="stylesheet" href="styles.css?v=20260820b" />
+<link rel="stylesheet" href="styles.css?v=20260820c" />
 <script>document.documentElement.classList.add("has-js");</script>
 </head>
 <body>
@@ -26,13 +26,14 @@
 
 <header class="nav" data-nav>
   <a href="#top" class="nav-brand">
-    <svg class="nav-mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"/><text x="50" y="63" text-anchor="middle">BQ</text></svg>
+    <img class="nav-mark" src="assets/img/logo.webp" alt="" aria-hidden="true" width="32" height="32" />
     <span>Bernardo Quaranta</span>
   </a>
   <nav class="nav-links" data-nav-links>
     <a href="#disciplinas">Especialidades</a>
     <a href="#sobre-mi">Sobre mí</a>
     <a href="#trayectoria">Trayectoria</a>
+    <a href="#en-accion">En acción</a>
     <a href="#consultorio">Consultorio</a>
   </nav>
   <a class="btn btn-primary nav-cta" data-whatsapp-link href="https://wa.me/5492494015851?text=Hola%20Bernardo%2C%20te%20escribo%20desde%20tu%20web%20para%20consultar%20por%20un%20turno." target="_blank" rel="noopener">Escribir por WhatsApp</a>
@@ -48,13 +49,8 @@
     <div class="hero-vignette" aria-hidden="true"></div>
 
     <div class="hero-inner">
-      <div class="hero-seal reveal" aria-hidden="true">
-        <svg viewBox="0 0 340 340">
-          <circle cx="170" cy="170" r="168"/>
-          <text class="seal-mono" x="170" y="196">BQ</text>
-          <text class="seal-name" x="170" y="244">BERNARDO QUARANTA</text>
-          <text class="seal-tag" x="170" y="262">KINESIOLOGÍA · OSTEOPATÍA</text>
-        </svg>
+      <div class="hero-seal reveal">
+        <img src="assets/img/logo.webp" alt="Isologo de Bernardo Quaranta — Kinesiología y Osteopatía" width="196" height="196" />
       </div>
       <h1 class="hero-title reveal" data-split="words">El cuerpo, entendido<br>como un todo.</h1>
       <p class="hero-sub reveal">Rehabilitación deportiva y un enfoque osteopático integral, para quienes exigen a su cuerpo y necesitan que alguien lo entienda por completo.</p>
@@ -121,8 +117,8 @@
   <!-- ============ SOBRE MÍ ============ -->
   <section class="about" id="sobre-mi">
     <div class="about-media reveal">
-      <div class="about-photo" data-photo-slot="portrait" aria-hidden="true">
-        <span class="photo-placeholder-label">Foto de Bernardo</span>
+      <div class="about-photo">
+        <img src="assets/img/portrait.webp" alt="Bernardo Quaranta atendiendo a un paciente" loading="lazy" />
       </div>
       <div class="about-stats">
         <div class="stat" data-count-to="8"><span class="stat-num">0</span><span class="stat-label">años de trayectoria</span></div>
@@ -162,6 +158,20 @@
         <div class="club-card reveal"><p class="club-name">Petrarca Rugby</p><p class="club-place">Padova, Italia</p></div>
         <div class="club-card reveal"><p class="club-name">Asociación Alumni</p><p class="club-place">URBA, Argentina</p></div>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ EN ACCIÓN ============ -->
+  <section class="gallery" id="en-accion">
+    <div class="section-head">
+      <p class="kicker reveal">En acción</p>
+      <h2 class="reveal" data-split="words">El trabajo, en el día a día.</h2>
+    </div>
+    <div class="gallery-grid">
+      <figure class="gallery-item reveal"><img src="assets/img/gallery-1.webp" alt="Bernardo Quaranta tratando el hombro de una paciente" loading="lazy" /></figure>
+      <figure class="gallery-item reveal"><img src="assets/img/gallery-2.webp" alt="Bernardo Quaranta evaluando la cadera de un paciente, junto a un afiche del sistema muscular" loading="lazy" /></figure>
+      <figure class="gallery-item reveal"><img src="assets/img/gallery-3.webp" alt="Ejercicio de readaptación con banda elástica" loading="lazy" /></figure>
+      <figure class="gallery-item reveal"><img src="assets/img/gallery-4.webp" alt="Trabajo de fuerza en gimnasio" loading="lazy" /></figure>
     </div>
   </section>
 
@@ -227,9 +237,9 @@
   <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.1c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.13.11-1.82-.11-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.8-4.18-4.94-4.37-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.2 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.15.12.32.02.51-.1.19-.15.31-.3.48-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.75 1.24 1.61 2 1.11.99 2.04 1.3 2.33 1.44.29.15.46.13.63-.08.17-.2.72-.84.91-1.13.19-.29.38-.24.63-.14.26.1 1.64.77 1.92.91.29.15.48.22.55.34.07.13.07.72-.17 1.4Z"/></svg>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20260820b"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20260820b"></script>
-<script defer src="lib/manifest.js?v=20260820b"></script>
-<script defer src="main.js?v=20260820b"></script>
+<script defer src="lib/gsap.min.js?v=20260820c"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20260820c"></script>
+<script defer src="lib/manifest.js?v=20260820c"></script>
+<script defer src="main.js?v=20260820c"></script>
 </body>
 </html>
