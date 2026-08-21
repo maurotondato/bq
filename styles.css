@@ -301,10 +301,12 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
 /* Two textured panels peeking from the TOP corners only — never the
    bottom, so nothing can ever collide with the stat cards underneath.
    The texture is a pure-CSS marble-like veining (no photograph), kept
-   inside this brand's monochrome vocabulary. A quiet drift (position
-   only, never rotation — that reads as a spinning clock, which this
-   brand has already ruled out elsewhere) keeps it from feeling static. */
-.about-deco { position: absolute; border-radius: 3px; pointer-events: none; z-index: -1; }
+   inside this brand's monochrome vocabulary. Their drift is scroll-
+   driven (JS, scrubbed against the whole section) rather than a fixed
+   loop, so it reads clearly as parallax while scrolling, not ambient
+   motion — never rotation, that reads as a spinning clock, which this
+   brand has already ruled out elsewhere. */
+.about-deco { position: absolute; border-radius: 3px; pointer-events: none; z-index: -1; will-change: transform; }
 .about-deco-a {
   width: 54%; aspect-ratio: 4 / 5; top: -9%; left: -9%;
   border: 1px solid var(--line);
@@ -315,7 +317,6 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
     linear-gradient(128deg, transparent 38%, rgba(10,10,10,.03) 40%, transparent 43%),
     linear-gradient(152deg, transparent 60%, rgba(10,10,10,.025) 62%, transparent 65%),
     var(--surface);
-  animation: aboutDrift1 13s ease-in-out infinite;
 }
 .about-deco-b {
   width: 38%; aspect-ratio: 4 / 5; bottom: -6%; right: -10%;
@@ -327,12 +328,6 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
     linear-gradient(48deg, transparent 40%, rgba(10,10,10,.028) 42%, transparent 45%),
     linear-gradient(20deg, transparent 62%, rgba(10,10,10,.02) 64%, transparent 67%),
     var(--surface);
-  animation: aboutDrift2 15.5s ease-in-out infinite;
-}
-@keyframes aboutDrift1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-5px, -7px); } }
-@keyframes aboutDrift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(5px, 6px); } }
-@media (prefers-reduced-motion: reduce) {
-  .about-deco-a, .about-deco-b { animation: none; }
 }
 .about-stats { display: flex; gap: 1.5rem; margin-top: 2.75rem; }
 .stat { flex: 1; border: 1px solid var(--line); border-radius: 4px; padding: 1.2rem; text-align: center; background: var(--surface); }

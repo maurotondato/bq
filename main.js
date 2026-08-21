@@ -165,6 +165,27 @@
         }
       );
     }
+
+    /* The marble panels drift hard against the section's own scroll —
+       not the sticky photo wrap, whose box barely moves once pinned, but
+       ".about" itself, so the parallax keeps running the whole time
+       "Sobre mí" is on screen. Opposite directions so the two panels
+       visibly pull apart as the page moves, instead of drifting in
+       lockstep. */
+    var aboutSection = document.querySelector(".about");
+    var decoA = document.querySelector(".about-deco-a");
+    var decoB = document.querySelector(".about-deco-b");
+    if (aboutSection && decoA && decoB && !reduced) {
+      var amp = window.innerWidth > 700 ? 1 : 0.55;
+      gsap.fromTo(decoA, { y: -30 * amp, x: -10 * amp }, {
+        y: 30 * amp, x: 10 * amp, ease: "none",
+        scrollTrigger: { trigger: aboutSection, start: "top bottom", end: "bottom top", scrub: 0.5 },
+      });
+      gsap.fromTo(decoB, { y: 34 * amp, x: 11 * amp }, {
+        y: -34 * amp, x: -11 * amp, ease: "none",
+        scrollTrigger: { trigger: aboutSection, start: "top bottom", end: "bottom top", scrub: 0.5 },
+      });
+    }
   }
 
   /* ---------- count up ---------- */
