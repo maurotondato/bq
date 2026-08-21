@@ -11,6 +11,26 @@
     });
   }
 
+  /* ---------- splash: hide it once the intro moment has had time to play ---------- */
+  function initSplash() {
+    var splash = document.querySelector("[data-splash]");
+    if (!splash) return;
+    var hide = function () { splash.classList.add("is-out"); };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setTimeout(hide, 250);
+      return;
+    }
+    var minDelay = 1900;
+    var start = performance.now();
+    var onReady = function () {
+      var elapsed = performance.now() - start;
+      setTimeout(hide, Math.max(0, minDelay - elapsed));
+    };
+    if (document.readyState === "complete") onReady();
+    else window.addEventListener("load", onReady, { once: true });
+    setTimeout(hide, 3000); // secondary JS safety if load never fires
+  }
+
   /* ---------- split text (preserves <br> / <em>) ---------- */
   function splitWords(el) {
     if (el.dataset.splitDone) return;
@@ -230,6 +250,7 @@
   }
 
   function boot() {
+    safe(initSplash, "initSplash");
     safe(initBrandLinks, "initBrandLinks");
     safe(initSplitText, "initSplitText");
     safe(initReveals, "initReveals");
