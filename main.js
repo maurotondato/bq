@@ -103,56 +103,6 @@
     });
   }
 
-  /* ---------- custom cursor ---------- */
-  function initCursor() {
-    var cursor = document.querySelector("[data-cursor]");
-    if (!cursor || matchMedia("(hover: none)").matches) { if (cursor) cursor.remove(); return; }
-    var dot = cursor.querySelector(".cursor-dot");
-    var ring = cursor.querySelector(".cursor-ring");
-    var rx = 0, ry = 0, tx = 0, ty = 0, firstMove = false;
-    var scale = 0.75, targetScale = 0.75;
-
-    window.addEventListener("mousemove", function (e) {
-      tx = e.clientX; ty = e.clientY;
-      dot.style.transform = "translate3d(" + tx + "px," + ty + "px,0) translate(-50%,-50%)";
-      if (!firstMove) {
-        firstMove = true;
-        rx = tx; ry = ty;
-        ring.style.transform = "translate3d(" + rx + "px," + ry + "px,0) translate(-50%,-50%) scale(" + scale + ")";
-        cursor.classList.add("is-ready");
-      }
-    });
-
-    (function loop() {
-      rx += (tx - rx) * 0.18;
-      ry += (ty - ry) * 0.18;
-      scale += (targetScale - scale) * 0.22;
-      ring.style.transform = "translate3d(" + rx + "px," + ry + "px,0) translate(-50%,-50%) scale(" + scale.toFixed(3) + ")";
-      requestAnimationFrame(loop);
-    })();
-
-    document.querySelectorAll("a, button, [data-tilt]").forEach(function (el) {
-      el.addEventListener("mouseover", function (e) { if (!el.contains(e.relatedTarget)) { ring.classList.add("is-hover"); targetScale = 1.3; } });
-      el.addEventListener("mouseout", function (e) { if (!el.contains(e.relatedTarget)) { ring.classList.remove("is-hover"); targetScale = 0.75; } });
-    });
-  }
-
-  /* ---------- tilt on photos ---------- */
-  function initTilt() {
-    if (matchMedia("(hover: none)").matches) return;
-    document.querySelectorAll("[data-tilt]").forEach(function (card) {
-      card.addEventListener("mousemove", function (e) {
-        var r = card.getBoundingClientRect();
-        var px = (e.clientX - r.left) / r.width - 0.5;
-        var py = (e.clientY - r.top) / r.height - 0.5;
-        card.style.transform = "perspective(900px) rotateX(" + (py * -3) + "deg) rotateY(" + (px * 3) + "deg) translateY(-2px)";
-      });
-      card.addEventListener("mouseout", function (e) {
-        if (!card.contains(e.relatedTarget)) card.style.transform = "";
-      });
-    });
-  }
-
   /* ---------- signature motion: the spine draws itself, the hero seal recedes ----------
      The circular seal fronts the hero; as the visitor scrolls into the Pillars
      section a vertical spine draws downward and a joint marker seats itself at
@@ -237,6 +187,7 @@
       a.href = brand.instagramUrl;
       if (!a.textContent.trim()) a.textContent = brand.instagramHandle;
     });
+    document.querySelectorAll("[data-linkedin-link]").forEach(function (a) { a.href = brand.linkedinUrl; });
     document.querySelectorAll("[data-email-link]").forEach(function (a) { a.href = "mailto:" + brand.email; });
     var yearEl = document.querySelector("[data-year]");
     if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -248,8 +199,6 @@
     safe(initReveals, "initReveals");
     safe(initNav, "initNav");
     safe(initSmoothScroll, "initSmoothScroll");
-    safe(initCursor, "initCursor");
-    safe(initTilt, "initTilt");
     safe(initCountUp, "initCountUp");
     safe(initSignatureMotion, "initSignatureMotion");
   }
