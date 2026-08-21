@@ -149,6 +149,22 @@
       tl.to(line, { scaleY: 1, duration: 1, ease: "none" })
         .to(joint, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2)" }, "-=0.2");
     }
+
+    /* The portrait rises and settles a beat behind the marble panels
+       fixed underneath it — that lag, plus its own deep drop shadow, is
+       what reads as the photo floating above them rather than sitting
+       flat against the collage. */
+    var aboutPhoto = document.querySelector(".about-photo");
+    var aboutWrap = document.querySelector(".about-photo-wrap");
+    if (aboutPhoto && aboutWrap && !reduced) {
+      gsap.fromTo(aboutPhoto,
+        { y: 26, scale: .978 },
+        {
+          y: 0, scale: 1, ease: "none",
+          scrollTrigger: { trigger: aboutWrap, start: "top 88%", end: "top 42%", scrub: 0.6 },
+        }
+      );
+    }
   }
 
   /* ---------- count up ---------- */
