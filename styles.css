@@ -104,17 +104,24 @@ a { color: inherit; text-decoration: none; }
   transition: background .35s var(--ease-out), border-color .35s var(--ease-out);
 }
 .nav.is-solid { background: rgba(251, 250, 248, 0.88); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom-color: var(--line); }
-.nav-brand { display: inline-flex; align-items: center; gap: .65rem; font-family: var(--font-display); font-size: 1.1rem; letter-spacing: .01em; color: var(--ink); }
+.nav-brand { display: inline-flex; align-items: center; gap: .65rem; font-family: var(--font-display); font-size: 1.1rem; letter-spacing: .01em; color: var(--ink); transition: color .35s var(--ease-out); }
 .nav-mark { width: 32px; height: 32px; flex: none; border-radius: 50%; object-fit: cover; }
 .nav-links { display: contents; }
 .nav-links-track { display: flex; gap: 2rem; }
-.nav-links a { font-family: var(--font-body); font-size: .84rem; letter-spacing: .03em; color: var(--ink-mute); position: relative; padding: .3rem 0; }
-.nav-links a::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 1px; background: var(--ink); transform-origin: left; transform: scaleX(0); transition: transform .3s var(--ease-out); }
+.nav-links a { font-family: var(--font-body); font-size: .84rem; letter-spacing: .03em; color: var(--ink-mute); position: relative; padding: .3rem 0; transition: color .35s var(--ease-out); }
+.nav-links a::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 1px; background: var(--ink); transform-origin: left; transform: scaleX(0); transition: transform .3s var(--ease-out), background .35s var(--ease-out); }
 .nav-links a:hover { color: var(--ink); }
 .nav-links a:hover::after { transform: scaleX(1); }
 .nav-cta { display: inline-flex; }
 .nav-burger { display: none; flex-direction: column; gap: 5px; background: none; border: 0; cursor: pointer; padding: 8px; }
-.nav-burger span { width: 22px; height: 1.5px; background: var(--ink); display: block; transition: transform .3s var(--ease-out), opacity .3s var(--ease-out); }
+.nav-burger span { width: 22px; height: 1.5px; background: var(--ink); display: block; transition: transform .3s var(--ease-out), opacity .3s var(--ease-out), background .35s var(--ease-out); }
+
+/* Over the hero photo (before the nav solidifies) the bar rides on dark imagery */
+.nav:not(.is-solid) .nav-brand,
+.nav:not(.is-solid) .nav-links a { color: var(--cream); }
+.nav:not(.is-solid) .nav-links a::after { background: var(--cream); }
+.nav:not(.is-solid) .nav-links a:hover { color: var(--cream); }
+.nav:not(.is-solid) .nav-burger span { background: var(--cream); }
 
 @media (max-width: 860px) {
   .nav-links {
@@ -147,29 +154,49 @@ h1 em, h2 em, h3 em { font-style: italic; color: var(--ink-mute); }
 
 section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4vw, 3rem); }
 
-/* ===================== HERO ===================== */
+/* ===================== HERO — full-bleed cinematic ===================== */
 .hero {
   min-height: 100svh;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center;
   padding-top: calc(var(--nav-h) + 2rem);
   overflow: hidden;
-}
-.hero-vignette {
-  position: absolute; inset: 0; z-index: -1;
-  background: radial-gradient(ellipse 60% 46% at 50% 28%, rgba(10,10,10,.045), transparent 68%), var(--bg);
+  color: var(--cream);
 }
 
-.hero-inner { max-width: 780px; }
-.hero-seal { width: clamp(150px, 17vw, 196px); margin: 0 auto 2.4rem; will-change: transform; }
+/* Wrapper is oversized (bled top/bottom) so the scroll-linked parallax
+   never exposes an edge; the photo itself carries an independent,
+   continuous Ken Burns breathe — two motions, two layers, no fighting. */
+.hero-media { position: absolute; inset: -8% 0; z-index: -2; overflow: hidden; will-change: transform; }
+.hero-photo {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 30%;
+  filter: grayscale(1) contrast(1.1) brightness(.82);
+  transform-origin: 50% 38%;
+  animation: heroBreathe 26s ease-in-out infinite alternate;
+}
+@keyframes heroBreathe { from { transform: scale(1); } to { transform: scale(1.09); } }
+@media (prefers-reduced-motion: reduce) { .hero-photo { animation: none; } }
+
+.hero-scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10,10,10,.62) 0%, rgba(10,10,10,.34) 32%, rgba(10,10,10,.5) 68%, rgba(10,10,10,.82) 100%),
+    linear-gradient(0deg, rgba(10,10,10,.35), transparent 40%);
+}
+
+.hero-inner { max-width: 780px; position: relative; z-index: 1; will-change: transform, opacity; }
+.hero-seal { width: 88px; margin: 0 auto 2rem; filter: drop-shadow(0 8px 24px rgba(0,0,0,.35)); }
 .hero-seal img { width: 100%; height: 100%; display: block; border-radius: 50%; object-fit: cover; }
 
-.hero-title { font-size: clamp(2.9rem, 7.6vw, 5.8rem); font-weight: 400; letter-spacing: -0.025em; line-height: 1.04; text-wrap: balance; max-width: 16ch; margin-inline: auto; }
-.hero-sub { color: var(--ink-mute); font-size: clamp(1rem, 1.6vw, 1.2rem); max-width: 46ch; margin: 1.7rem auto 0; text-wrap: pretty; }
+.hero-title { color: var(--cream); font-size: clamp(2.9rem, 7.6vw, 5.8rem); font-weight: 400; letter-spacing: -0.025em; line-height: 1.04; text-wrap: balance; max-width: 16ch; margin-inline: auto; text-shadow: 0 2px 30px rgba(0,0,0,.25); }
+.hero-title em { color: var(--cream); }
+.hero-sub { color: var(--cream-2); font-size: clamp(1rem, 1.6vw, 1.2rem); max-width: 46ch; margin: 1.7rem auto 0; text-wrap: pretty; }
 .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2.4rem; }
-.hero-badges { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; margin-top: 2.6rem; font-family: var(--font-body); font-size: .74rem; letter-spacing: .03em; color: var(--ink-mute); }
-.hero-badges span { border: 1px solid var(--line); border-radius: 999px; padding: .5rem 1rem; }
-.hero-badges strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.hero .btn-ghost { border-color: rgba(251,250,248,.4); color: var(--cream); }
+.hero .btn-ghost:hover { border-color: var(--cream); background: var(--cream); color: var(--ink); }
+.hero-badges { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; margin-top: 2.6rem; font-family: var(--font-body); font-size: .74rem; letter-spacing: .03em; color: var(--cream-2); }
+.hero-badges span { border: 1px solid rgba(251,250,248,.3); border-radius: 999px; padding: .5rem 1rem; }
+.hero-badges strong { color: var(--cream); font-weight: 500; font-variant-numeric: tabular-nums; }
 
 /* ===================== PILLARS — the diptych ===================== */
 .pillars-title { text-align: center; font-size: clamp(2.5rem, 5.2vw, 4.2rem); font-weight: 400; letter-spacing: -0.02em; max-width: 17ch; margin: 0 auto 5rem; text-wrap: balance; }

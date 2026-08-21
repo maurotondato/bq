@@ -103,24 +103,32 @@
     });
   }
 
-  /* ---------- signature motion: the spine draws itself, the hero seal recedes ----------
-     The circular seal fronts the hero; as the visitor scrolls into the Pillars
-     section a vertical spine draws downward and a joint marker seats itself at
-     the midpoint — the same circular motif from the logo, now standing for the
-     one point where Kinesiología and Osteopatía meet. */
+  /* ---------- signature motion: the hero photo breathes, the spine draws itself ----------
+     The hero photo carries its own continuous Ken Burns drift (pure CSS, see
+     styles.css) so it never fights this scroll-linked layer: as the visitor
+     scrolls, the photo layer drifts for parallax depth and the text recedes.
+     Further down, entering the Pillars section, a vertical spine draws itself
+     and a joint marker seats at the midpoint — the same circular motif from
+     the logo, now standing for the one point where Kinesiología and
+     Osteopatía meet. */
   function initSignatureMotion() {
     if (!window.gsap || !window.ScrollTrigger) return;
     gsap.registerPlugin(ScrollTrigger);
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    var seal = document.querySelector(".hero-seal");
-    if (seal && !reduced) {
-      gsap.to(seal, {
-        scale: 0.72,
-        y: -30,
-        opacity: 0.35,
+    var media = document.querySelector(".hero-media");
+    var inner = document.querySelector(".hero-inner");
+    if (media && inner && !reduced) {
+      gsap.to(media, {
+        yPercent: 10,
         ease: "none",
-        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.4 },
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.5 },
+      });
+      gsap.to(inner, {
+        y: -50,
+        opacity: 0.1,
+        ease: "none",
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "65% top", scrub: 0.5 },
       });
     }
 
@@ -177,6 +185,34 @@
     }, 6000);
   }
 
+  /* ---------- gallery reveal: each photo wipes open, staggered ----------
+     A curtain-style clip-path reveal on the "En acción" mosaic, one image
+     opening after the next as the grid enters view — the wipe is the
+     authored moment for that section, distinct from the hero's breathe. */
+  function initGalleryReveal() {
+    var items = document.querySelectorAll(".m-item");
+    if (!items.length) return;
+    if (!window.gsap || !window.ScrollTrigger) {
+      items.forEach(function (el) { el.style.clipPath = "inset(0% 0% 0% 0%)"; });
+      return;
+    }
+    gsap.registerPlugin(ScrollTrigger);
+    var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      gsap.set(items, { clipPath: "inset(0% 0% 0% 0%)" });
+      return;
+    }
+    var mosaic = document.querySelector(".mosaic");
+    gsap.set(items, { clipPath: "inset(0% 0% 100% 0%)" });
+    gsap.to(items, {
+      clipPath: "inset(0% 0% 0% 0%)",
+      duration: 1,
+      ease: "power3.out",
+      stagger: 0.12,
+      scrollTrigger: { trigger: mosaic, start: "top 85%" },
+    });
+  }
+
   /* ---------- brand-driven content ---------- */
   function initBrandLinks() {
     var brand = window.__BRAND__;
@@ -201,6 +237,7 @@
     safe(initSmoothScroll, "initSmoothScroll");
     safe(initCountUp, "initCountUp");
     safe(initSignatureMotion, "initSignatureMotion");
+    safe(initGalleryReveal, "initGalleryReveal");
   }
 
   if (document.readyState === "loading") {
