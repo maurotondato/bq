@@ -110,6 +110,7 @@
     var dot = cursor.querySelector(".cursor-dot");
     var ring = cursor.querySelector(".cursor-ring");
     var rx = 0, ry = 0, tx = 0, ty = 0, firstMove = false;
+    var scale = 0.75, targetScale = 0.75;
 
     window.addEventListener("mousemove", function (e) {
       tx = e.clientX; ty = e.clientY;
@@ -117,7 +118,7 @@
       if (!firstMove) {
         firstMove = true;
         rx = tx; ry = ty;
-        ring.style.transform = "translate3d(" + rx + "px," + ry + "px,0) translate(-50%,-50%)";
+        ring.style.transform = "translate3d(" + rx + "px," + ry + "px,0) translate(-50%,-50%) scale(" + scale + ")";
         cursor.classList.add("is-ready");
       }
     });
@@ -125,17 +126,18 @@
     (function loop() {
       rx += (tx - rx) * 0.18;
       ry += (ty - ry) * 0.18;
-      ring.style.transform = "translate3d(" + rx + "px," + ry + "px,0) translate(-50%,-50%)";
+      scale += (targetScale - scale) * 0.22;
+      ring.style.transform = "translate3d(" + rx + "px," + ry + "px,0) translate(-50%,-50%) scale(" + scale.toFixed(3) + ")";
       requestAnimationFrame(loop);
     })();
 
     document.querySelectorAll("a, button, [data-tilt]").forEach(function (el) {
-      el.addEventListener("mouseover", function (e) { if (!el.contains(e.relatedTarget)) ring.classList.add("is-hover"); });
-      el.addEventListener("mouseout", function (e) { if (!el.contains(e.relatedTarget)) ring.classList.remove("is-hover"); });
+      el.addEventListener("mouseover", function (e) { if (!el.contains(e.relatedTarget)) { ring.classList.add("is-hover"); targetScale = 1.3; } });
+      el.addEventListener("mouseout", function (e) { if (!el.contains(e.relatedTarget)) { ring.classList.remove("is-hover"); targetScale = 0.75; } });
     });
   }
 
-  /* ---------- tilt on cards ---------- */
+  /* ---------- tilt on photos ---------- */
   function initTilt() {
     if (matchMedia("(hover: none)").matches) return;
     document.querySelectorAll("[data-tilt]").forEach(function (card) {
@@ -143,12 +145,52 @@
         var r = card.getBoundingClientRect();
         var px = (e.clientX - r.left) / r.width - 0.5;
         var py = (e.clientY - r.top) / r.height - 0.5;
-        card.style.transform = "perspective(900px) rotateX(" + (py * -6) + "deg) rotateY(" + (px * 6) + "deg) translateY(-4px)";
+        card.style.transform = "perspective(900px) rotateX(" + (py * -3) + "deg) rotateY(" + (px * 3) + "deg) translateY(-2px)";
       });
       card.addEventListener("mouseout", function (e) {
         if (!card.contains(e.relatedTarget)) card.style.transform = "";
       });
     });
+  }
+
+  /* ---------- signature motion: the spine draws itself, the hero seal recedes ----------
+     The circular seal fronts the hero; as the visitor scrolls into the Pillars
+     section a vertical spine draws downward and a joint marker seats itself at
+     the midpoint — the same circular motif from the logo, now standing for the
+     one point where Kinesiología and Osteopatía meet. */
+  function initSignatureMotion() {
+    if (!window.gsap || !window.ScrollTrigger) return;
+    gsap.registerPlugin(ScrollTrigger);
+    var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    var seal = document.querySelector(".hero-seal");
+    if (seal && !reduced) {
+      gsap.to(seal, {
+        scale: 0.72,
+        y: -30,
+        opacity: 0.35,
+        ease: "none",
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.4 },
+      });
+    }
+
+    var line = document.querySelector("[data-spine-line]");
+    var joint = document.querySelector("[data-spine-joint]");
+    var diptych = document.querySelector(".diptych");
+    if (line && joint && diptych && window.innerWidth > 820) {
+      gsap.set(line, { scaleY: 0 });
+      gsap.set(joint, { scale: 0, opacity: 0 });
+      var tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: diptych,
+          start: "top 75%",
+          end: "top 30%",
+          scrub: reduced ? false : 0.6,
+        },
+      });
+      tl.to(line, { scaleY: 1, duration: 1, ease: "none" })
+        .to(joint, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2)" }, "-=0.2");
+    }
   }
 
   /* ---------- count up ---------- */
@@ -209,6 +251,7 @@
     safe(initCursor, "initCursor");
     safe(initTilt, "initTilt");
     safe(initCountUp, "initCountUp");
+    safe(initSignatureMotion, "initSignatureMotion");
   }
 
   if (document.readyState === "loading") {
