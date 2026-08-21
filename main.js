@@ -229,6 +229,29 @@
     });
   }
 
+  /* ---------- gallery parallax: each photo drifts at its own pace ----------
+     Every mosaic photo is oversized inside its frame and scrubbed against
+     its own scroll position, so each one glides slightly as the page
+     scrolls past it — independent of the one-time wipe above, which
+     lives on the frame (.m-item); this drift lives on the photo layer
+     inside it (.m-photo), so the two never touch the same transform. */
+  function initGalleryParallax() {
+    if (!window.gsap || !window.ScrollTrigger) return;
+    var photos = document.querySelectorAll(".m-photo");
+    if (!photos.length) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.registerPlugin(ScrollTrigger);
+    photos.forEach(function (el) {
+      gsap.fromTo(el,
+        { yPercent: -9 },
+        {
+          yPercent: 9, ease: "none",
+          scrollTrigger: { trigger: el.closest(".m-item"), start: "top bottom", end: "bottom top", scrub: 0.4 },
+        }
+      );
+    });
+  }
+
   /* ---------- brand-driven content ---------- */
   function initBrandLinks() {
     var brand = window.__BRAND__;
@@ -254,6 +277,7 @@
     safe(initCountUp, "initCountUp");
     safe(initSignatureMotion, "initSignatureMotion");
     safe(initGalleryReveal, "initGalleryReveal");
+    safe(initGalleryParallax, "initGalleryParallax");
   }
 
   if (document.readyState === "loading") {
