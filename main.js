@@ -68,9 +68,17 @@
   function initNav() {
     var nav = document.querySelector("[data-nav]");
     if (!nav) return;
-    var onScroll = function () { nav.classList.toggle("is-solid", window.scrollY > 40); };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    /* Only the homepage opens on a full-bleed dark hero photo that the
+       nav should float over transparently before solidifying; secondary
+       pages (404, privacidad) have no such photo, so the nav stays
+       solid from the start instead of toggling on scroll. */
+    if (document.querySelector(".hero")) {
+      var onScroll = function () { nav.classList.toggle("is-solid", window.scrollY > 40); };
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+    } else {
+      nav.classList.add("is-solid");
+    }
 
     var toggle = document.querySelector("[data-nav-toggle]");
     var links = document.querySelector("[data-nav-links]");
