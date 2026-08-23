@@ -382,7 +382,7 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
 .trayectoria { overflow: hidden; background: var(--dark-bg); color: var(--cream); }
 .trayectoria-bg {
   position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(180deg, rgba(10,10,10,.95), rgba(10,10,10,.98)), url("assets/img/trayectoria-bg.webp") center 30% / cover no-repeat;
+  background: linear-gradient(180deg, rgba(10,10,10,.95), rgba(10,10,10,.98)), url("assets/img/trayectoria-deportiva-rugby-alto-rendimiento.webp") center 30% / cover no-repeat;
   filter: grayscale(1) contrast(1.05);
 }
 .trayectoria-inner { max-width: 900px; margin: 0 auto; text-align: center; }
