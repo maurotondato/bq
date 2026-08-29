@@ -245,9 +245,8 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
 
 .hero-inner { max-width: 780px; position: relative; z-index: 1; will-change: transform, opacity; }
 .hero-seal {
-  width: min(400px, 78vw); margin: 0 auto 2rem; padding: 1rem 1.5rem; border-radius: 14px;
-  background: rgba(251,250,248,.94);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35), 0 0 0 1px rgba(0,0,0,.04);
+  width: min(400px, 78vw); margin: 0 auto 2rem;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,.45));
   opacity: 0; animation: heroSealIn .7s var(--ease-out) .5s both;
 }
 .hero-seal img { width: 100%; height: auto; display: block; }
