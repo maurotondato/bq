@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://maurotondato.github.io/</loc>
+    <loc>https://bernardoquaranta.com.ar/</loc>
+    <lastmod>2026-09-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://maurotondato.github.io/privacidad.html</loc>
+    <loc>https://bernardoquaranta.com.ar/privacidad.html</loc>
+    <lastmod>2026-09-02</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
