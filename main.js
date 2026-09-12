@@ -281,6 +281,37 @@
     });
   }
 
+  /* ---------- faq: smooth open/close ----------
+     Native <details> jumps instantly to/from display:none, which reads as
+     abrupt. With JS we intercept the toggle, keep [open] true for the
+     whole transition (so the browser never hides the content mid-animation)
+     and let the .faq-body grid-rows transition (see styles.css) carry the
+     actual open/close motion, only clearing [open] once the close finishes. */
+  function initFaqAnimation() {
+    var items = document.querySelectorAll(".faq-item");
+    if (!items.length) return;
+    items.forEach(function (item) {
+      var summary = item.querySelector("summary");
+      var body = item.querySelector(".faq-body");
+      if (!summary || !body) return;
+      summary.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (item.classList.contains("is-open")) {
+          item.classList.remove("is-open");
+          var onEnd = function (ev) {
+            if (ev.target !== body) return;
+            item.open = false;
+            body.removeEventListener("transitionend", onEnd);
+          };
+          body.addEventListener("transitionend", onEnd);
+        } else {
+          item.open = true;
+          requestAnimationFrame(function () { item.classList.add("is-open"); });
+        }
+      });
+    });
+  }
+
   /* ---------- brand-driven content ---------- */
   function initBrandLinks() {
     var brand = window.__BRAND__;
@@ -307,6 +338,7 @@
     safe(initSignatureMotion, "initSignatureMotion");
     safe(initGalleryReveal, "initGalleryReveal");
     safe(initGalleryParallax, "initGalleryParallax");
+    safe(initFaqAnimation, "initFaqAnimation");
   }
 
   if (document.readyState === "loading") {
