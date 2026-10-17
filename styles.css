@@ -539,6 +539,9 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
 .footer-links a { font-size: .84rem; color: var(--ink-mute); }
 .footer-links a:hover { color: var(--ink); }
 .footer-copy { text-align: center; font-size: .72rem; color: var(--ink-mute); margin: 0; }
+.footer-credit { text-align: center; font-size: .66rem; color: var(--ink-mute); opacity: .55; margin: .5rem 0 0; }
+.footer-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; transition: opacity .3s var(--ease-out); }
+.footer-credit a:hover { opacity: .85; }
 
 /* ===================== WHATSAPP FLOAT ===================== */
 .whatsapp-float {
