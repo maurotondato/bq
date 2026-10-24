@@ -230,55 +230,117 @@
     }, 6000);
   }
 
-  /* ---------- gallery reveal: each photo wipes open, staggered ----------
-     A curtain-style clip-path reveal on the "En acción" mosaic, one image
-     opening after the next as the grid enters view — the wipe is the
-     authored moment for that section, distinct from the hero's breathe. */
-  function initGalleryReveal() {
-    var items = document.querySelectorAll(".m-item");
+  /* ---------- gallery: lens rail ----------
+     A draggable horizontal rail. Whichever card sits under the rail's
+     center is "in focus": JS scales each card by its distance from that
+     center line on every scroll frame, so the enlargement reads as one
+     lens sweeping across the row as the visitor drags, swipes or scrolls.
+     The track gets side padding (half the rail's width) so the first and
+     last cards can still reach that center line instead of stopping short. */
+  function initLensRail() {
+    var rail = document.querySelector("[data-lens-rail]");
+    var track = document.querySelector("[data-lens-track]");
+    if (!rail || !track) return;
+    var items = Array.prototype.slice.call(track.querySelectorAll(".lens-item"));
     if (!items.length) return;
-    if (!window.gsap || !window.ScrollTrigger) {
-      items.forEach(function (el) { el.style.clipPath = "inset(0% 0% 0% 0%)"; });
-      return;
-    }
-    gsap.registerPlugin(ScrollTrigger);
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      gsap.set(items, { clipPath: "inset(0% 0% 0% 0%)" });
-      return;
-    }
-    var mosaic = document.querySelector(".mosaic");
-    gsap.set(items, { clipPath: "inset(0% 0% 100% 0%)" });
-    gsap.to(items, {
-      clipPath: "inset(0% 0% 0% 0%)",
-      duration: 1,
-      ease: "power3.out",
-      stagger: 0.12,
-      scrollTrigger: { trigger: mosaic, start: "top 85%" },
-    });
-  }
 
-  /* ---------- gallery parallax: each photo drifts at its own pace ----------
-     Every mosaic photo is oversized inside its frame and scrubbed against
-     its own scroll position, so each one glides slightly as the page
-     scrolls past it — independent of the one-time wipe above, which
-     lives on the frame (.m-item); this drift lives on the photo layer
-     inside it (.m-photo), so the two never touch the same transform. */
-  function initGalleryParallax() {
-    if (!window.gsap || !window.ScrollTrigger) return;
-    var photos = document.querySelectorAll(".m-photo");
-    if (!photos.length) return;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.registerPlugin(ScrollTrigger);
-    photos.forEach(function (el) {
-      gsap.fromTo(el,
-        { yPercent: -9 },
-        {
-          yPercent: 9, ease: "none",
-          scrollTrigger: { trigger: el.closest(".m-item"), start: "top bottom", end: "bottom top", scrub: 0.4 },
-        }
-      );
+    var MIN_SCALE = 0.82, MAX_SCALE = 1.08, BELL = 220;
+
+    function layout() {
+      var railW = rail.clientWidth;
+      var itemW = items[0].getBoundingClientRect().width;
+      var pad = Math.max(0, (railW - itemW) / 2);
+      track.style.paddingLeft = pad + "px";
+      track.style.paddingRight = pad + "px";
+    }
+
+    function update() {
+      var railRect = rail.getBoundingClientRect();
+      var centerX = railRect.left + railRect.width / 2;
+      items.forEach(function (item) {
+        var r = item.getBoundingClientRect();
+        var itemCenter = r.left + r.width / 2;
+        var dist = Math.abs(itemCenter - centerX);
+        var t = Math.max(0, 1 - dist / BELL);
+        var scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * t;
+        item.style.transform = "scale(" + scale.toFixed(3) + ")";
+        item.style.zIndex = Math.round(t * 100);
+      });
+    }
+
+    layout();
+    if (reduced) {
+      items.forEach(function (item) { item.style.transform = "scale(1)"; });
+    } else {
+      update();
+      var ticking = false;
+      rail.addEventListener("scroll", function () {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () { update(); ticking = false; });
+      }, { passive: true });
+    }
+    window.addEventListener("resize", function () {
+      layout();
+      if (!reduced) update();
     });
+
+    /* Mouse dragging with light momentum. Touch pointers are left to the
+       browser's native (smoother, platform-consistent) momentum scroll;
+       only "mouse" gets the hand-rolled version, since a mouse has no
+       native horizontal drag-to-scroll of its own. */
+    var isDown = false, startX = 0, startScroll = 0, lastX = 0, lastT = 0, velocity = 0, momentumId = null;
+    function cancelMomentum() {
+      if (momentumId) { cancelAnimationFrame(momentumId); momentumId = null; }
+    }
+    rail.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse") return;
+      isDown = true;
+      cancelMomentum();
+      startX = e.clientX; startScroll = rail.scrollLeft; lastX = e.clientX; lastT = performance.now();
+      rail.classList.add("is-dragging");
+      rail.setPointerCapture(e.pointerId);
+    });
+    rail.addEventListener("pointermove", function (e) {
+      if (!isDown) return;
+      var dx = e.clientX - startX;
+      rail.scrollLeft = startScroll - dx;
+      var now = performance.now();
+      var dt = now - lastT;
+      if (dt > 0) velocity = (e.clientX - lastX) / dt;
+      lastX = e.clientX; lastT = now;
+    });
+    function endDrag() {
+      if (!isDown) return;
+      isDown = false;
+      rail.classList.remove("is-dragging");
+      if (!reduced && Math.abs(velocity) > 0.05) {
+        var v = velocity * 16;
+        var step = function () {
+          rail.scrollLeft -= v;
+          v *= 0.95;
+          if (Math.abs(v) > 0.5) momentumId = requestAnimationFrame(step);
+        };
+        momentumId = requestAnimationFrame(step);
+      }
+    }
+    rail.addEventListener("pointerup", endDrag);
+    rail.addEventListener("pointercancel", endDrag);
+    rail.addEventListener("pointerleave", function () { if (isDown) endDrag(); });
+
+    function scrollByItem(dir) {
+      var w = items[0].getBoundingClientRect().width + 16;
+      rail.scrollBy({ left: dir * w * 1.4, behavior: reduced ? "auto" : "smooth" });
+    }
+    rail.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); scrollByItem(1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); scrollByItem(-1); }
+    });
+    var prevBtn = document.querySelector("[data-lens-prev]");
+    var nextBtn = document.querySelector("[data-lens-next]");
+    if (prevBtn) prevBtn.addEventListener("click", function () { scrollByItem(-1); });
+    if (nextBtn) nextBtn.addEventListener("click", function () { scrollByItem(1); });
   }
 
   /* ---------- faq: smooth open/close ----------
@@ -336,8 +398,7 @@
     safe(initSmoothScroll, "initSmoothScroll");
     safe(initCountUp, "initCountUp");
     safe(initSignatureMotion, "initSignatureMotion");
-    safe(initGalleryReveal, "initGalleryReveal");
-    safe(initGalleryParallax, "initGalleryParallax");
+    safe(initLensRail, "initLensRail");
     safe(initFaqAnimation, "initFaqAnimation");
   }
 
