@@ -231,73 +231,179 @@
   }
 
   /* ---------- gallery: lens rail ----------
-     A draggable horizontal rail. Whichever card sits under the rail's
-     center is "in focus": JS scales each card by its distance from that
-     center line on every scroll frame, so the enlargement reads as one
-     lens sweeping across the row as the visitor drags, swipes or scrolls.
-     The track gets side padding (half the rail's width) so the first and
-     last cards can still reach that center line instead of stopping short. */
+     Whichever card sits under the rail's center is "in focus": scaled up
+     and brought to full color, while the rest stay smaller and grayscale
+     — one lens sweeping across the row. With motion allowed, the row also
+     drifts on its own in an infinite loop (the item list is tripled so it
+     can wrap seamlessly) and pauses while a desktop cursor is over it;
+     dragging always works, with light momentum on release. Reduced motion
+     gets the quieter version: no auto-drift, no loop, cards stay at rest
+     scale/color, drag still works on a single finite pass. */
   function initLensRail() {
     var rail = document.querySelector("[data-lens-rail]");
     var track = document.querySelector("[data-lens-track]");
     if (!rail || !track) return;
-    var items = Array.prototype.slice.call(track.querySelectorAll(".lens-item"));
-    if (!items.length) return;
+    var baseItems = Array.prototype.slice.call(track.querySelectorAll(".lens-item"));
+    if (!baseItems.length) return;
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var hoverCapable = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
     var MIN_SCALE = 0.82, MAX_SCALE = 1.08, BELL = 220;
 
-    function layout() {
-      var railW = rail.clientWidth;
-      var itemW = items[0].getBoundingClientRect().width;
-      var pad = Math.max(0, (railW - itemW) / 2);
-      track.style.paddingLeft = pad + "px";
-      track.style.paddingRight = pad + "px";
-    }
-
-    function update() {
-      var railRect = rail.getBoundingClientRect();
-      var centerX = railRect.left + railRect.width / 2;
+    function applyLens(items, t_by_item) {
       items.forEach(function (item) {
-        var r = item.getBoundingClientRect();
-        var itemCenter = r.left + r.width / 2;
-        var dist = Math.abs(itemCenter - centerX);
-        var t = Math.max(0, 1 - dist / BELL);
+        var t = t_by_item(item);
         var scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * t;
         item.style.transform = "scale(" + scale.toFixed(3) + ")";
         item.style.zIndex = Math.round(t * 100);
+        var img = item.querySelector("img");
+        if (img) img.style.filter = "grayscale(" + (1 - t).toFixed(3) + ") contrast(1.05)";
       });
     }
 
-    layout();
-    if (reduced) {
-      items.forEach(function (item) { item.style.transform = "scale(1)"; });
-    } else {
-      update();
-      var ticking = false;
-      rail.addEventListener("scroll", function () {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(function () { update(); ticking = false; });
-      }, { passive: true });
+    function tOf(item, centerX) {
+      var r = item.getBoundingClientRect();
+      var itemCenter = r.left + r.width / 2;
+      var dist = Math.abs(itemCenter - centerX);
+      return Math.max(0, 1 - dist / BELL);
     }
-    window.addEventListener("resize", function () {
+
+    if (reduced) {
+      /* Quiet fallback: finite rail, side padding so the first/last cards
+         can still reach the center line, plain drag, no auto-scroll. */
+      function layout() {
+        var railW = rail.clientWidth;
+        var itemW = baseItems[0].getBoundingClientRect().width;
+        var pad = Math.max(0, (railW - itemW) / 2);
+        track.style.paddingLeft = pad + "px";
+        track.style.paddingRight = pad + "px";
+      }
       layout();
-      if (!reduced) update();
-    });
+      baseItems.forEach(function (item) {
+        item.style.transform = "scale(1)";
+        var img = item.querySelector("img");
+        if (img) img.style.filter = "grayscale(1) contrast(1.05)";
+      });
+      window.addEventListener("resize", layout);
+
+      var isDown = false, startX = 0, startScroll = 0;
+      rail.addEventListener("pointerdown", function (e) {
+        if (e.pointerType !== "mouse") return;
+        isDown = true;
+        startX = e.clientX; startScroll = rail.scrollLeft;
+        rail.classList.add("is-dragging");
+        rail.setPointerCapture(e.pointerId);
+      });
+      rail.addEventListener("pointermove", function (e) {
+        if (!isDown) return;
+        rail.scrollLeft = startScroll - (e.clientX - startX);
+      });
+      function endDrag() { isDown = false; rail.classList.remove("is-dragging"); }
+      rail.addEventListener("pointerup", endDrag);
+      rail.addEventListener("pointercancel", endDrag);
+      rail.addEventListener("pointerleave", endDrag);
+
+      var scrollByItemReduced = function (dir) {
+        var w = baseItems[0].getBoundingClientRect().width + 16;
+        rail.scrollBy({ left: dir * w * 1.4, behavior: "auto" });
+      };
+      rail.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowRight") { e.preventDefault(); scrollByItemReduced(1); }
+        if (e.key === "ArrowLeft") { e.preventDefault(); scrollByItemReduced(-1); }
+      });
+      var prevBtnR = document.querySelector("[data-lens-prev]");
+      var nextBtnR = document.querySelector("[data-lens-next]");
+      if (prevBtnR) prevBtnR.addEventListener("click", function () { scrollByItemReduced(-1); });
+      if (nextBtnR) nextBtnR.addEventListener("click", function () { scrollByItemReduced(1); });
+      return;
+    }
+
+    /* Full version: triple the item list so the row can wrap seamlessly,
+       start in the middle copy, and silently snap back by one set-width
+       whenever the scroll position drifts into the outer copies — same
+       pixels either side, so the jump is invisible. */
+    rail.style.scrollSnapType = "none";
+    for (var c = 0; c < 2; c++) {
+      baseItems.forEach(function (li) {
+        var clone = li.cloneNode(true);
+        clone.setAttribute("aria-hidden", "true");
+        track.appendChild(clone);
+      });
+    }
+    var items = Array.prototype.slice.call(track.querySelectorAll(".lens-item"));
+    var setWidth = 0;
+
+    function measure() {
+      setWidth = track.scrollWidth / 3;
+      if (rail.scrollLeft < setWidth * 0.1 || rail.scrollLeft > setWidth * 1.9) {
+        rail.scrollLeft = setWidth;
+      }
+    }
+    measure();
+    window.addEventListener("resize", measure);
+
+    var AUTO_SPEED = 30; // px/second
+    var isDown = false, startX = 0, startScroll = 0, lastX = 0, lastT = 0;
+    var momentumV = 0; // px/ms
+    var hoverPaused = false;
+    var navSuppress = false; // true while an arrow/keyboard jump's native smooth-scroll is in flight
+    var navTimer = null;
+    var running = true; // gated by IntersectionObserver below
+    var rafId = null;
+    var lastFrameT = null;
+
+    function wrapCheck() {
+      if (rail.scrollLeft < setWidth * 0.5) rail.scrollLeft += setWidth;
+      else if (rail.scrollLeft > setWidth * 1.5) rail.scrollLeft -= setWidth;
+    }
+
+    function tick(now) {
+      if (!running) { rafId = null; return; }
+      var dt = lastFrameT ? Math.min(now - lastFrameT, 50) : 16;
+      lastFrameT = now;
+
+      if (!isDown) {
+        if (Math.abs(momentumV) > 0.01) {
+          rail.scrollLeft -= momentumV * dt;
+          momentumV *= Math.pow(0.95, dt / 16);
+          if (Math.abs(momentumV) < 0.01) momentumV = 0;
+        } else if (!hoverPaused && !navSuppress) {
+          rail.scrollLeft += (AUTO_SPEED * dt) / 1000;
+        }
+      }
+
+      wrapCheck();
+      var railRect = rail.getBoundingClientRect();
+      var centerX = railRect.left + railRect.width / 2;
+      applyLens(items, function (item) { return tOf(item, centerX); });
+
+      rafId = requestAnimationFrame(tick);
+    }
+    function ensureTicking() {
+      if (!rafId && running) rafId = requestAnimationFrame(tick);
+    }
+    ensureTicking();
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        running = entries[0].isIntersecting;
+        if (running) { lastFrameT = null; ensureTicking(); }
+      }, { threshold: 0.01 }).observe(rail);
+    }
+
+    if (hoverCapable) {
+      rail.addEventListener("mouseenter", function () { hoverPaused = true; momentumV = 0; });
+      rail.addEventListener("mouseleave", function () { hoverPaused = false; });
+    }
 
     /* Mouse dragging with light momentum. Touch pointers are left to the
        browser's native (smoother, platform-consistent) momentum scroll;
        only "mouse" gets the hand-rolled version, since a mouse has no
        native horizontal drag-to-scroll of its own. */
-    var isDown = false, startX = 0, startScroll = 0, lastX = 0, lastT = 0, velocity = 0, momentumId = null;
-    function cancelMomentum() {
-      if (momentumId) { cancelAnimationFrame(momentumId); momentumId = null; }
-    }
     rail.addEventListener("pointerdown", function (e) {
       if (e.pointerType !== "mouse") return;
       isDown = true;
-      cancelMomentum();
+      momentumV = 0;
       startX = e.clientX; startScroll = rail.scrollLeft; lastX = e.clientX; lastT = performance.now();
       rail.classList.add("is-dragging");
       rail.setPointerCapture(e.pointerId);
@@ -308,22 +414,14 @@
       rail.scrollLeft = startScroll - dx;
       var now = performance.now();
       var dt = now - lastT;
-      if (dt > 0) velocity = (e.clientX - lastX) / dt;
+      if (dt > 0) momentumV = (e.clientX - lastX) / dt;
       lastX = e.clientX; lastT = now;
     });
     function endDrag() {
       if (!isDown) return;
       isDown = false;
       rail.classList.remove("is-dragging");
-      if (!reduced && Math.abs(velocity) > 0.05) {
-        var v = velocity * 16;
-        var step = function () {
-          rail.scrollLeft -= v;
-          v *= 0.95;
-          if (Math.abs(v) > 0.5) momentumId = requestAnimationFrame(step);
-        };
-        momentumId = requestAnimationFrame(step);
-      }
+      if (Math.abs(momentumV) < 0.05) momentumV = 0;
     }
     rail.addEventListener("pointerup", endDrag);
     rail.addEventListener("pointercancel", endDrag);
@@ -331,7 +429,11 @@
 
     function scrollByItem(dir) {
       var w = items[0].getBoundingClientRect().width + 16;
-      rail.scrollBy({ left: dir * w * 1.4, behavior: reduced ? "auto" : "smooth" });
+      navSuppress = true;
+      momentumV = 0;
+      clearTimeout(navTimer);
+      rail.scrollBy({ left: dir * w * 1.4, behavior: "smooth" });
+      navTimer = setTimeout(function () { navSuppress = false; }, 600);
     }
     rail.addEventListener("keydown", function (e) {
       if (e.key === "ArrowRight") { e.preventDefault(); scrollByItem(1); }
