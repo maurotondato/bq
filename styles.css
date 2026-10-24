@@ -311,6 +311,10 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
   .spine { display: none; }
   .pane-numeral { font-size: 4.5rem; top: -1.8rem; }
   .pane-badge-spacer { display: none; }
+  /* The second pane's real badge sits above its heading, which the first
+     pane doesn't have — so its numeral needs to drop down to decorate
+     behind "Osteopatía deportiva" instead of landing on the badge pill. */
+  .pane:nth-of-type(2) .pane-numeral { top: 3.2rem; }
 }
 
 /* ===================== ABOUT ===================== */
