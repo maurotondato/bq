@@ -54,14 +54,18 @@
           io.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.01, rootMargin: "0px 0px -2% 0px" });
+    }, { threshold: 0.01, rootMargin: "0px 0px 15% 0px" });
     targets.forEach(function (el) { io.observe(el); });
 
+    /* A real safety net, not a 6s wait: if the observer somehow never
+       fires for something already on screen (a slow callback, a layout
+       shift, a resumed tab), reveal it almost immediately rather than
+       leaving it parked at opacity:0. */
     setTimeout(function () {
       document.querySelectorAll(".reveal:not(.is-visible)").forEach(function (el) {
         if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add("is-visible");
       });
-    }, 6000);
+    }, 1200);
   }
 
   /* ---------- nav ---------- */

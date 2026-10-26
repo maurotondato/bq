@@ -395,12 +395,12 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
 .trayectoria-lead { color: var(--cream-2); max-width: 56ch; margin: 1.4rem auto 0; }
 
 .clubs-list { list-style: none; padding: 0; margin: 3.5rem auto 0; max-width: 620px; text-align: left; }
-.clubs-list li { display: flex; align-items: baseline; justify-content: space-between; gap: 1.5rem; padding: 1.3rem 0; border-top: 1px solid rgba(251,250,248,.14); transition: padding-left .35s var(--ease-out), border-color .35s var(--ease-out); }
+.clubs-list li { display: flex; align-items: baseline; justify-content: space-between; gap: 1.5rem; padding: 1.3rem 0; border-top: 1px solid rgba(251,250,248,.14); transition: transform .35s var(--ease-out), border-color .35s var(--ease-out); }
 .clubs-list li:last-child { border-bottom: 1px solid rgba(251,250,248,.14); }
 .club-name { font-family: var(--font-display); font-size: clamp(1.3rem, 2.4vw, 1.7rem); color: var(--cream); transition: color .35s var(--ease-out); }
 .club-place { font-family: var(--font-body); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--cream-3); white-space: nowrap; transition: color .35s var(--ease-out); }
 @media (hover: hover) {
-  .clubs-list li:hover { padding-left: .7rem; border-top-color: rgba(251,250,248,.4); }
+  .clubs-list li:hover { transform: translateX(.7rem); border-top-color: rgba(251,250,248,.4); }
   .clubs-list li:hover .club-place { color: var(--cream-2); }
 }
 .trayectoria-cta { display: inline-block; margin-top: 3rem; font-family: var(--font-body); font-size: .86rem; color: var(--cream); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(251,250,248,.4); transition: text-decoration-color .3s var(--ease-out); }
