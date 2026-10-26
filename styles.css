@@ -526,8 +526,8 @@ section { position: relative; padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 4v
 .duo-pane ul { list-style: none; margin: 0 0 1.6rem; padding: 0; display: grid; gap: .5rem; min-height: 3.5rem; align-content: start; }
 .duo-pane li { font-size: .92rem; color: var(--ink-soft); padding-left: 1.1rem; position: relative; }
 .duo-pane li::before { content: ""; position: absolute; left: 0; top: .55rem; width: 5px; height: 5px; border-radius: 50%; background: var(--ink); }
-.loc-map { border-radius: 4px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 1rem; filter: grayscale(.6) contrast(1.05); background: var(--bg-2); }
-.loc-map iframe { display: block; width: 100%; height: 220px; border: 0; }
+.loc-map { height: 220px; border-radius: 4px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 1rem; filter: grayscale(.6) contrast(1.05); background: var(--bg-2); }
+.loc-map iframe { display: block; width: 100%; height: 260px; border: 0; }
 .duo-pane a.map-link { font-family: var(--font-body); font-size: .78rem; letter-spacing: .02em; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 900px) {
